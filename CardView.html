@@ -64,20 +64,23 @@
         const card = document.createElement("div");
         card.className = "bg-white border border-purple-300 rounded-2xl shadow-md px-6 py-6 h-[220px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition group";
 
-        card.innerHTML = `
-          <div class="relative w-full h-full">
-            <!-- Tooltip -->
-            <span class="absolute -top-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-              Click this card to scan the contact info
-            </span>
-            <!-- Card content -->
-            <h1 class="text-[24px] font-extrabold text-black">${name}</h1>
-            <div class="text-[18px] text-gray-800 space-y-1 mt-auto">
-              <p>${title}</p>
-              <p class="break-all">${email}</p>
-            </div>
-          </div>
-        `;
+       card.innerHTML = `
+              <div class="relative w-full h-full flex flex-col">
+                <!-- Tooltip -->
+                <span class="absolute -top-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  Click this card to scan the contact info
+                </span>
+            
+                <!-- Card content -->
+                <div class="flex-grow flex items-start">
+                  <h1 class="text-[24px] font-extrabold text-black">${name}</h1>
+                </div>
+                <div class="text-[18px] text-gray-800 space-y-1 pt-4">
+                  <p>${title}</p>
+                  <p class="break-all">${email}</p>
+                </div>
+              </div>
+            `;
 
         card.addEventListener("click", () => showModal({ name, title, email }));
         grid.appendChild(card);
