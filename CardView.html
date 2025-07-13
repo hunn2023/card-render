@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Business Cards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 relative">
+  <!-- Container -->
+  <div id="card-container" class="space-y-10 transition duration-300"></div>
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-40 flex items-center justify-center">
+    <div class="bg-white border border-purple-300 rounded-2xl shadow-xl px-8 py-6 h-[220px] w-full max-w-md flex flex-col justify-between relative">
+      <button onclick="closeModal()" class="absolute top-3 right-4 text-gray-500 hover:text-red-600 text-2xl">&times;</button>
+      <h1 id="modal-name" class="text-[26px] font-extrabold text-black leading-tight"></h1>
+      <div class="text-[18px] text-gray-800 space-y-1 mt-auto">
+        <p id="modal-title"></p>
+        <p id="modal-email" class="break-all"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lấy params trên URL
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      const parseList = key => params.get(key)?.split(",").map(s => s.trim()) || [];
+      return {
+        names: parseList("names"),
+        titles: parseList("titles"),
+        emails: parseList("emails")
+      };
+    }
+
+    const { names, titles, emails } = getParams();
+
+    // Ghép name-title thành cặp
+    const pairs = [];
+    const pairCount = Math.min(names.length, titles.length);
+    for (let i = 0; i < pairCount; i++) {
+      pairs.push({ name: names[i], title: titles[i] });
+    }
+
+    // Render từng nhóm theo email
+    const container = document.getElementById("card-container");
+    emails.forEach(email => {
+      const group = document.createElement("div");
+
+      // Tiêu đề email
+      const emailLabel = document.createElement("h2");
+      emailLabel.textContent = `📧 ${email}`;
+      emailLabel.className = "text-xl font-bold mb-4 text-purple-700";
+      group.appendChild(emailLabel);
+
+      // Grid chứa các card
+      const grid = document.createElement("div");
+      grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
+
+      for (const { name, title } of pairs) {
+        const card = document.createElement("div");
+        card.className = "bg-white border border-purple-300 rounded-2xl shadow-md px-6 py-6 h-[220px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition";
+
+        card.innerHTML = `
+          <h1 class="text-[24px] font-extrabold text-black">${name}</h1>
+          <div class="text-[18px] text-gray-800 space-y-1 mt-auto">
+            <p>${title}</p>
+            <p class="break-all">${email}</p>
+          </div>
+        `;
+
+        card.addEventListener("click", () => showModal({ name, title, email }));
+        grid.appendChild(card);
+      }
+
+      group.appendChild(grid);
+      container.appendChild(group);
+    });
+
+    // Hiện modal
+    function showModal(person) {
+      document.getElementById("modal-name").textContent = person.name;
+      document.getElementById("modal-title").textContent = person.title;
+      document.getElementById("modal-email").textContent = person.email;
+
+      document.getElementById("modal-overlay").classList.remove("hidden");
+      document.getElementById("card-container").classList.add("blur-sm");
+    }
+
+    // Đóng modal
+    function closeModal() {
+      document.getElementById("modal-overlay").classList.add("hidden");
+      document.getElementById("card-container").classList.remove("blur-sm");
+    }
+  </script>
+</body>
+</html>
