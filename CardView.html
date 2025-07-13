@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Dynamic Business Cards</title>
+  <title>Cards render</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-6 relative">
@@ -22,7 +22,6 @@
   </div>
 
   <script>
-    // Lấy params trên URL
     function getParams() {
       const params = new URLSearchParams(window.location.search);
       const parseList = key => params.get(key)?.split(",").map(s => s.trim()) || [];
@@ -35,37 +34,48 @@
 
     const { names, titles, emails } = getParams();
 
-    // Ghép name-title thành cặp
     const pairs = [];
     const pairCount = Math.min(names.length, titles.length);
     for (let i = 0; i < pairCount; i++) {
       pairs.push({ name: names[i], title: titles[i] });
     }
 
-    // Render từng nhóm theo email
+    const people = [];
+    for (const email of emails) {
+      for (const { name, title } of pairs) {
+        people.push({ name, title, email });
+      }
+    }
+
     const container = document.getElementById("card-container");
+
     emails.forEach(email => {
       const group = document.createElement("div");
 
-      // Tiêu đề email
       const emailLabel = document.createElement("h2");
-      emailLabel.textContent = `📧 ${email}`;
+      emailLabel.textContent = `������ ${email}`;
       emailLabel.className = "text-xl font-bold mb-4 text-purple-700";
       group.appendChild(emailLabel);
 
-      // Grid chứa các card
       const grid = document.createElement("div");
       grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6";
 
       for (const { name, title } of pairs) {
         const card = document.createElement("div");
-        card.className = "bg-white border border-purple-300 rounded-2xl shadow-md px-6 py-6 h-[220px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition";
+        card.className = "bg-white border border-purple-300 rounded-2xl shadow-md px-6 py-6 h-[220px] flex flex-col justify-between cursor-pointer hover:shadow-lg transition group";
 
         card.innerHTML = `
-          <h1 class="text-[24px] font-extrabold text-black">${name}</h1>
-          <div class="text-[18px] text-gray-800 space-y-1 mt-auto">
-            <p>${title}</p>
-            <p class="break-all">${email}</p>
+          <div class="relative w-full h-full">
+            <!-- Tooltip -->
+            <span class="absolute -top-7 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded px-3 py-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              Click this card to scan the contact info
+            </span>
+            <!-- Card content -->
+            <h1 class="text-[24px] font-extrabold text-black">${name}</h1>
+            <div class="text-[18px] text-gray-800 space-y-1 mt-auto">
+              <p>${title}</p>
+              <p class="break-all">${email}</p>
+            </div>
           </div>
         `;
 
@@ -77,17 +87,14 @@
       container.appendChild(group);
     });
 
-    // Hiện modal
     function showModal(person) {
       document.getElementById("modal-name").textContent = person.name;
       document.getElementById("modal-title").textContent = person.title;
       document.getElementById("modal-email").textContent = person.email;
-
       document.getElementById("modal-overlay").classList.remove("hidden");
       document.getElementById("card-container").classList.add("blur-sm");
     }
 
-    // Đóng modal
     function closeModal() {
       document.getElementById("modal-overlay").classList.add("hidden");
       document.getElementById("card-container").classList.remove("blur-sm");
